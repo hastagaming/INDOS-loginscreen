@@ -11,6 +11,12 @@ clear
 echo -e "${BLUE}󰣇  INDOS SYSTEM INSTALLER${NC}"
 echo -e "${CYAN}----------------------------------${NC}"
 
+if [ ! -d "core" ]; then
+    echo -e "${YELLOW}[*] Cloning INDOS repository...${NC}"
+    git clone https://github.com/hastagaming/INDOS-loginscreen.git $HOME/INDOS-loginscreen
+    cd $HOME/INDOS-loginscreen
+fi
+
 # 1. Setup Repository & Tur-Repo
 echo -e "${YELLOW}[*] Setting up repositories...${NC}"
 pkg update && pkg upgrade -y
