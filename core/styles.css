@@ -1,7 +1,72 @@
+/* --- Global Styles --- */
 Screen {
     background: #1e1e2e;
 }
 
+/* --- Login & Sign-up UI (Hyprland Style) --- */
+Center {
+    width: 100%;
+    height: 100%;
+}
+
+#login-box {
+    width: 50;
+    height: 32;
+    border: double #89b4fa;
+    background: #181825;
+    padding: 2 4;
+    content-align: center middle;
+}
+
+#login-icon {
+    font-size: 4;
+    color: #89b4fa;
+    width: 100%;
+    content-align: center middle;
+    margin-bottom: 1;
+}
+
+#login-title {
+    text-style: bold;
+    color: #cdd6f4;
+    margin-bottom: 1;
+    content-align: center middle;
+}
+
+Input {
+    margin: 1 0;
+    border: tall #313244;
+    background: #1e1e2e;
+    color: #cdd6f4;
+}
+
+Input:focus {
+    border: tall #89b4fa;
+}
+
+#login-btn {
+    width: 100%;
+    background: #89b4fa;
+    color: #11111b;
+    margin-top: 1;
+    text-style: bold;
+}
+
+#setup-btn {
+    width: 100%;
+    background: #a6e3a1; /* Warna hijau untuk Sign Up */
+    color: #11111b;
+    margin-top: 1;
+    text-style: bold;
+}
+
+#status-msg {
+    margin-top: 1;
+    content-align: center middle;
+    text-style: italic;
+}
+
+/* --- Waybar Styles (Top Bar) --- */
 #waybar {
     height: 3;
     background: #11111b;
@@ -9,6 +74,7 @@ Screen {
     border-bottom: solid #89b4fa;
     padding: 0 1;
     dock: top;
+    layout: horizontal;
 }
 
 #os-logo {
@@ -24,6 +90,7 @@ Screen {
     color: #a6e3a1;
     border: none;
     margin-top: 1;
+    margin-left: 1;
 }
 
 .btn-action:hover {
@@ -35,8 +102,10 @@ Screen {
     width: 1fr;
     content-align: right middle;
     color: #94e2d5;
+    padding-right: 1;
 }
 
+/* --- Workspace & Panels Styles --- */
 #workspace {
     layout: horizontal;
     height: 1fr;
@@ -54,5 +123,12 @@ Screen {
 }
 
 .panel:focus {
-    border: tall #89b4fa;
+    border: tall #89b4fa; /* Border menyala saat panel dipilih */
+    background: #1e1e2e;
+}
+
+/* --- Footer --- */
+Footer {
+    background: #11111b;
+    color: #89b4fa;
 }
