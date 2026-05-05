@@ -4,6 +4,7 @@ import getpass
 import socket
 import platform
 import json
+import subprocess
 
 # Lokasi file konfigurasi user
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "user_config.json")
@@ -11,12 +12,11 @@ CONFIG_PATH = os.path.join(os.path.dirname(__file__), "user_config.json")
 def get_system_info():
     """
     Mengambil informasi sistem untuk ditampilkan di Waybar.
-    Menggunakan nama dari config jika tersedia, jika tidak menggunakan sistem.
+    Prioritas menggunakan nama dari config JSON.
     """
     time_now = datetime.datetime.now().strftime("%H:%M")
     date_now = datetime.datetime.now().strftime("%d/%m/%Y")
     
-    # Mencoba mengambil username dari config JSON
     try:
         if os.path.exists(CONFIG_PATH):
             with open(CONFIG_PATH, "r") as f:
@@ -31,7 +31,7 @@ def get_system_info():
 
 def get_user_prompt():
     """
-    Menghasilkan string prompt terminal yang dinamis.
+    Menghasilkan string prompt terminal yang dinamis untuk panel workspace.
     """
     try:
         if os.path.exists(CONFIG_PATH):
@@ -57,9 +57,11 @@ def get_user_prompt():
     arch = platform.machine()
     return f"   [{user}@{host} ({arch}) ~]$ _"
 
+# --- LOGIN & CONFIG LOGIC ---
+
 def validate_login(username_input, password_input):
     """
-    Fungsi pembantu untuk memvalidasi login di main.py
+    Memvalidasi kredensial login.
     """
     if not os.path.exists(CONFIG_PATH):
         return False, "No account found"
@@ -76,7 +78,7 @@ def validate_login(username_input, password_input):
 
 def save_user_config(username, password):
     """
-    Menyimpan kredensial baru saat proses Sign Up.
+    Menyimpan kredensial baru saat Sign Up.
     """
     try:
         data = {"username": username, "password": password}
@@ -85,3 +87,31 @@ def save_user_config(username, password):
         return True
     except Exception:
         return False
+
+# --- EXTERNAL TOOLS INTEGRATION ---
+
+def open_file_manager():
+    """
+    Membuka Yazi File Manager.
+    """
+    try:
+        # Menjalankan yazi secara interaktif
+        subprocess.run(["yazi"], check=True)
+    except FileNotFoundError:
+        print("\n[!] Yazi not found. Please run install first.")
+    except Exception as e:
+        print(f"\n[!] Error opening Yazi: {e}")
+
+def open_gemini_chat():
+    """
+    Membuka Gemini AI CLI interaktif.
+    """
+    try:
+        # Memastikan terminal bersih sebelum chat
+        os.system('clear')
+        # Menjalankan gemini chat
+        subprocess.run(["gemini"], check=True)
+    except FileNotFoundError:
+        print("\n[!] Gemini CLI not found. Run 'npm install -g @google/gemini-cli'.")
+    except Exception as e:
+        print(f"\n[!] Error opening Gemini: {e}")

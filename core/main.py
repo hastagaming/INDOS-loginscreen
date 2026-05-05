@@ -4,7 +4,8 @@ from textual.app import App, ComposeResult
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, Label, Input
 from textual.containers import Container, Horizontal, Vertical, Center
-from utils import get_system_info, get_user_prompt
+# Import fungsi sistem dari utils
+from utils import get_system_info, get_user_prompt, open_file_manager, open_gemini_chat
 
 # Lokasi file konfigurasi
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "user_config.json")
@@ -42,7 +43,7 @@ class LoginScreen(Screen):
         with Center():
             with Vertical(id="login-box"):
                 yield Label("󰣇", id="login-icon")
-                yield Label("INDOS", id="login-title")
+                yield Label("INDOS SECURE LOGIN", id="login-title")
                 yield Input(placeholder="Username", id="user-input")
                 yield Input(placeholder="Password", password=True, id="pass-input")
                 yield Button("LOGIN", variant="primary", id="login-btn")
@@ -54,6 +55,10 @@ class LoginScreen(Screen):
 
     def check_login(self) -> None:
         try:
+            if not os.path.exists(CONFIG_PATH):
+                self.app.push_screen(SignUpScreen())
+                return
+
             with open(CONFIG_PATH, "r") as f:
                 data = json.load(f)
             
@@ -64,15 +69,18 @@ class LoginScreen(Screen):
                 self.app.push_screen(MainWorkspace())
             else:
                 self.query_one("#status-msg").update("[red]󰚌 Access Denied![/red]")
-        except FileNotFoundError:
-            self.app.push_screen(SignUpScreen())
+        except Exception as e:
+            self.query_one("#status-msg").update(f"[red]Error: {str(e)}[/red]")
 
 # --- MAIN WORKSPACE ---
 class MainWorkspace(Screen):
     def compose(self) -> ComposeResult:
+        # Waybar dengan tombol tambahan untuk Yazi dan AI
         yield Horizontal(
             Static(" 󰣇  INDOS ", id="os-logo"),
-            Button("  ADD SESSION", id="add_btn", classes="btn-action"),
+            Button("  SESSION", id="add_btn", classes="btn-action"),
+            Button("󰝰  FILES", id="yazi_btn", classes="btn-action"),
+            Button("󰧑  AI", id="ai_btn", classes="btn-action"),
             Static(get_system_info(), id="info-bar"),
             id="waybar"
         )
@@ -82,14 +90,25 @@ class MainWorkspace(Screen):
         )
         yield Footer()
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
+    async def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "add_btn":
             new_panel = Vertical(Label(get_user_prompt()), classes="panel")
             self.query_one("#workspace").mount(new_panel)
+        
+        elif event.button.id == "yazi_btn":
+            # Suspend TUI untuk membuka Yazi di terminal
+            with self.app.suspend():
+                open_file_manager()
+        
+        elif event.button.id == "ai_btn":
+            # Suspend TUI untuk membuka Gemini CLI chat
+            with self.app.suspend():
+                open_gemini_chat()
 
 class INDOS(App):
     CSS_PATH = "styles.css"
-    
+    BINDINGS = [("q", "quit", "Quit INDOS")]
+
     def on_mount(self) -> None:
         if os.path.exists(CONFIG_PATH):
             self.push_screen(LoginScreen())

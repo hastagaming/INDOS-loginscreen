@@ -11,39 +11,52 @@ clear
 echo -e "${BLUE}󰣇  INDOS SYSTEM INSTALLER${NC}"
 echo -e "${CYAN}----------------------------------${NC}"
 
-# 1. Deteksi Direktori
-# Mengambil path absolut tempat installer dijalankan
-INSTALL_DIR=$(pwd)
-
-# 2. Instalasi Dependensi
-echo -e "${YELLOW}[*] Updating system & installing dependencies...${NC}"
+# 1. Setup Repository & Tur-Repo
+echo -e "${YELLOW}[*] Setting up repositories...${NC}"
 pkg update && pkg upgrade -y
+pkg install tur-repo -y
+
+# 2. Instalasi Dependensi Sistem & Yazi
+echo -e "${YELLOW}[*] Installing system tools & Yazi...${NC}"
+# Termasuk dependensi untuk preview Yazi (ffmpeg, jq, dll)
 pkg install python -y
+pkg install nodejs-lts -y
+pkg install yazi -y
+pkg install ffmpeg -y
+pkg install 7zip -y
+pkg install jq -y
+pkg install poppler -y
+pkg install fd -y
+pkg install ripgrep -y
+pkg install fzf vim -y
 
-echo -e "${YELLOW}[*] Installing Python libraries...${NC}"
-pip install textual
+# 3. Instalasi AI (Gemini CLI & Python SDK)
+echo -e "${YELLOW}[*] Installing Gemini AI components...${NC}"
+# Gemini CLI resmi via NPM
+npm install -g @google/gemini-cli --ignore-scripts
+# Python SDK untuk integrasi core
+pip install textual google-genai
 
-# 3. Membuat perintah 'indos' di sistem
+# 4. Konfigurasi Path & Perintah 'indos'
+INSTALL_DIR=$(pwd)
 echo -e "${YELLOW}[*] Registering 'indos' command to system...${NC}"
 
-# Membuat script launcher di folder bin Termux
+# Membuat script launcher
 cat <<EOF > indos
 #!/bin/bash
 # INDOS Launcher
 python $INSTALL_DIR/core/main.py
 EOF
 
-# Memberikan izin eksekusi pada launcher
+# Memberikan izin eksekusi dan pindahkan ke bin
 chmod +x indos
-
-# Memindahkan ke folder bin agar bisa dipanggil dari mana saja
 mv indos $PREFIX/bin/
 
-# 4. Memastikan izin folder core
-chmod +x $INSTALL_DIR/core/main.py
-chmod +x $INSTALL_DIR/core/utils.py
+# 5. Memastikan Izin Eksekusi File Core
+chmod +x "$INSTALL_DIR/core/main.py"
+chmod +x "$INSTALL_DIR/core/utils.py"
 
 echo -e "${CYAN}----------------------------------${NC}"
-echo -e "${GREEN}[+] SUCCESS: INDOS has been installed!${NC}"
+echo -e "${GREEN}[+] SUCCESS: INDOS & ALL Dependencies installed!${NC}"
 echo -e "${BLUE}[!] You can now start the system by typing:${NC} ${YELLOW}indos${NC}"
 echo -e "${CYAN}----------------------------------${NC}"

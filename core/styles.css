@@ -11,7 +11,7 @@ Center {
 
 #login-box {
     width: 50;
-    height: 32;
+    height: 30;
     border: double #89b4fa;
     background: #181825;
     padding: 2 4;
@@ -19,11 +19,12 @@ Center {
 }
 
 #login-icon {
-    font-size: 4;
+    /* Perbaikan: font-size dihapus karena tidak didukung Textual CSS */
     color: #89b4fa;
     width: 100%;
+    height: 3;
     content-align: center middle;
-    margin-bottom: 1;
+    text-style: bold;
 }
 
 #login-title {
@@ -54,7 +55,7 @@ Input:focus {
 
 #setup-btn {
     width: 100%;
-    background: #a6e3a1; /* Warna hijau untuk Sign Up */
+    background: #a6e3a1; 
     color: #11111b;
     margin-top: 1;
     text-style: bold;
@@ -80,12 +81,13 @@ Input:focus {
 #os-logo {
     color: #89b4fa;
     text-style: bold;
-    width: 15;
+    width: 12;
     content-align: center middle;
 }
 
 .btn-action {
-    width: 22;
+    /* Ukuran disesuaikan agar muat saat banyak tombol (ADD, FILES, AI) */
+    width: 16;
     background: #313244;
     color: #a6e3a1;
     border: none;
@@ -96,6 +98,14 @@ Input:focus {
 .btn-action:hover {
     background: #45475a;
     color: #f9e2af;
+}
+
+#ai_btn {
+    color: #cba6f7; /* Warna ungu untuk AI */
+}
+
+#yazi_btn {
+    color: #89b4fa; /* Warna biru untuk Yazi */
 }
 
 #info-bar {
@@ -123,7 +133,7 @@ Input:focus {
 }
 
 .panel:focus {
-    border: tall #89b4fa; /* Border menyala saat panel dipilih */
+    border: tall #89b4fa;
     background: #1e1e2e;
 }
 
