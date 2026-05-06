@@ -6,33 +6,17 @@ import platform
 import json
 import subprocess
 
-# Lokasi file konfigurasi user
+# --- Configuration Path ---
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "user_config.json")
 
 def get_system_info():
     """
-    Mengambil informasi sistem untuk ditampilkan di Waybar.
-    Prioritas menggunakan nama dari config JSON.
+    Fetches system information formatted with Tmux color codes
+    to emulate a modern Waybar aesthetic.
     """
     time_now = datetime.datetime.now().strftime("%H:%M")
     date_now = datetime.datetime.now().strftime("%d/%m/%Y")
     
-    try:
-        if os.path.exists(CONFIG_PATH):
-            with open(CONFIG_PATH, "r") as f:
-                data = json.load(f)
-                current_user = data.get("username", getpass.getuser())
-        else:
-            current_user = getpass.getuser()
-    except Exception:
-        current_user = getpass.getuser()
-    
-    return f" 󰣇 INDOS |  {current_user} |  {time_now} | 󰃭 {date_now} "
-
-def get_user_prompt():
-    """
-    Menghasilkan string prompt terminal yang dinamis untuk panel workspace.
-    """
     try:
         if os.path.exists(CONFIG_PATH):
             with open(CONFIG_PATH, "r") as f:
@@ -42,30 +26,16 @@ def get_user_prompt():
             user = getpass.getuser()
     except Exception:
         user = getpass.getuser()
-    
-    try:
-        if os.path.exists(os.path.expanduser("~/.hostname")):
-            with open(os.path.expanduser("~/.hostname"), "r") as f:
-                host = f.read().strip()
-        else:
-            host = socket.gethostname()
-            if host == "localhost" or not host:
-                host = "INDOS"
-    except Exception:
-        host = "INDOS"
         
-    arch = platform.machine()
-    return f"   [{user}@{host} ({arch}) ~]$ _"
+    # Using Catppuccin-inspired colors for the status bar
+    return f"#[fg=#89b4fa,bold] 󰣇 INDOS #[fg=#cdd6f4,nobold] |  {user} |  {time_now} | 󰃭 {date_now} "
 
-# --- LOGIN & CONFIG LOGIC ---
+# --- Authentication Logic ---
 
 def validate_login(username_input, password_input):
-    """
-    Memvalidasi kredensial login.
-    """
+    """Checks user credentials against the stored JSON config."""
     if not os.path.exists(CONFIG_PATH):
         return False, "No account found"
-        
     try:
         with open(CONFIG_PATH, "r") as f:
             data = json.load(f)
@@ -77,41 +47,61 @@ def validate_login(username_input, password_input):
         return False, str(e)
 
 def save_user_config(username, password):
-    """
-    Menyimpan kredensial baru saat Sign Up.
-    """
+    """Saves new user credentials during the sign-up process."""
     try:
-        data = {"username": username, "password": password}
         with open(CONFIG_PATH, "w") as f:
-            json.dump(data, f, indent=4)
+            json.dump({"username": username, "password": password}, f, indent=4)
         return True
     except Exception:
         return False
 
-# --- EXTERNAL TOOLS INTEGRATION ---
+# --- Tmux Engine (The Workspace Core) ---
+
+def start_tmux_session():
+    """
+    Initializes a persistent Tmux session with a tiling layout
+    and Hyprland-style aesthetics.
+    """
+    session_name = "INDOS"
+    
+    # Clean up any existing session with the same name
+    subprocess.run(["tmux", "kill-session", "-t", session_name], stderr=subprocess.DEVNULL)
+    
+    # 1. Create a new detached session
+    subprocess.run(["tmux", "new-session", "-d", "-s", session_name])
+    
+    # 2. Status Bar Configuration (Waybar-style)
+    # Position: Top, Style: Catppuccin Mocha
+    subprocess.run(["tmux", "set-option", "-t", session_name, "status-position", "top"])
+    subprocess.run(["tmux", "set-option", "-t", session_name, "status-style", "bg=#11111b,fg=#cdd6f4"])
+    subprocess.run(["tmux", "set-option", "-t", session_name, "status-left", ""])
+    subprocess.run(["tmux", "set-option", "-t", session_name, "status-right", get_system_info()])
+    subprocess.run(["tmux", "set-option", "-t", session_name, "status-interval", "1"])
+
+    # 3. Pane Border Configuration (Hyprland Aesthetic)
+    subprocess.run(["tmux", "set-option", "-t", session_name, "pane-border-style", "fg=#313244"])
+    subprocess.run(["tmux", "set-option", "-t", session_name, "pane-active-border-style", "fg=#89b4fa"])
+
+    # 4. Default Layout Construction
+    # Split horizontally: Main terminal (70%) | Info Panel (30%)
+    subprocess.run(["tmux", "split-window", "-h", "-t", f"{session_name}.0", "-p", "30"])
+    
+    # Initialize the secondary panel with a welcome message
+    welcome_cmd = "clear && echo -e '\\n  󰣇  Welcome to INDOS Workspace\\n  ----------------------------\\n  󰝰  FILES  : Type yazi\\n    AI     : Type gemini\\n  󰠚  EXIT   : Ctrl+b then d'"
+    subprocess.run(["tmux", "send-keys", "-t", f"{session_name}.1", welcome_cmd, "C-m"])
+
+    # Refocus the main working pane
+    subprocess.run(["tmux", "select-pane", "-t", f"{session_name}.0"])
+    
+    # 5. Attach to the session
+    os.system(f"tmux attach-session -t {session_name}")
+
+# --- Integrated Tools ---
 
 def open_file_manager():
-    """
-    Membuka Yazi File Manager.
-    """
-    try:
-        # Menjalankan yazi secara interaktif
-        subprocess.run(["yazi"], check=True)
-    except FileNotFoundError:
-        print("\n[!] Yazi not found. Please run install first.")
-    except Exception as e:
-        print(f"\n[!] Error opening Yazi: {e}")
+    """Opens Yazi in a new Tmux window for seamless multitasking."""
+    subprocess.run(["tmux", "new-window", "-n", "Files", "yazi"])
 
 def open_gemini_chat():
-    """
-    Membuka Gemini AI CLI interaktif.
-    """
-    try:
-        # Memastikan terminal bersih sebelum chat
-        os.system('clear')
-        # Menjalankan gemini chat
-        subprocess.run(["gemini"], check=True)
-    except FileNotFoundError:
-        print("\n[!] Gemini CLI not found. Run 'npm install -g @google/gemini-cli'.")
-    except Exception as e:
-        print(f"\n[!] Error opening Gemini: {e}")
+    """Opens the Gemini AI chat in a new Tmux window."""
+    subprocess.run(["tmux", "new-window", "-n", "Gemini AI", "gemini"])

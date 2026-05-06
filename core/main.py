@@ -4,8 +4,8 @@ from textual.app import App, ComposeResult
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static, Button, Label, Input
 from textual.containers import Container, Horizontal, Vertical, Center
-# Import fungsi sistem dari utils
-from utils import get_system_info, get_user_prompt, open_file_manager, open_gemini_chat
+# Import fungsi transisi tmux dari utils
+from utils import start_tmux_session
 
 # Lokasi file konfigurasi
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "user_config.json")
@@ -26,12 +26,12 @@ class SignUpScreen(Screen):
         if event.button.id == "setup-btn":
             username = self.query_one("#new-user").value
             password = self.query_one("#new-pass").value
-            
+
             if username and password:
                 data = {"username": username, "password": password}
                 with open(CONFIG_PATH, "w") as f:
                     json.dump(data, f, indent=4)
-                
+
                 self.app.notify("Account created! Please login.", title="INDOS")
                 self.app.push_screen(LoginScreen())
             else:
@@ -61,49 +61,17 @@ class LoginScreen(Screen):
 
             with open(CONFIG_PATH, "r") as f:
                 data = json.load(f)
-            
+
             user_input = self.query_one("#user-input").value
             pass_input = self.query_one("#pass-input").value
 
             if user_input == data["username"] and pass_input == data["password"]:
-                self.app.push_screen(MainWorkspace())
+                # Menghentikan TUI dan mengirim sinyal sukses
+                self.app.exit(result="login_success")
             else:
                 self.query_one("#status-msg").update("[red]󰚌 Access Denied![/red]")
         except Exception as e:
             self.query_one("#status-msg").update(f"[red]Error: {str(e)}[/red]")
-
-# --- MAIN WORKSPACE ---
-class MainWorkspace(Screen):
-    def compose(self) -> ComposeResult:
-        # Waybar dengan tombol tambahan untuk Yazi dan AI
-        yield Horizontal(
-            Static(" 󰣇  INDOS ", id="os-logo"),
-            Button("  SESSION", id="add_btn", classes="btn-action"),
-            Button("󰝰  FILES", id="yazi_btn", classes="btn-action"),
-            Button("󰧑  AI", id="ai_btn", classes="btn-action"),
-            Static(get_system_info(), id="info-bar"),
-            id="waybar"
-        )
-        yield Container(
-            Vertical(Label(get_user_prompt()), classes="panel"),
-            id="workspace"
-        )
-        yield Footer()
-
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "add_btn":
-            new_panel = Vertical(Label(get_user_prompt()), classes="panel")
-            self.query_one("#workspace").mount(new_panel)
-        
-        elif event.button.id == "yazi_btn":
-            # Suspend TUI untuk membuka Yazi di terminal
-            with self.app.suspend():
-                open_file_manager()
-        
-        elif event.button.id == "ai_btn":
-            # Suspend TUI untuk membuka Gemini CLI chat
-            with self.app.suspend():
-                open_gemini_chat()
 
 class INDOS(App):
     CSS_PATH = "styles.css"
@@ -117,4 +85,9 @@ class INDOS(App):
 
 if __name__ == "__main__":
     app = INDOS()
-    app.run()
+    # Menangkap hasil exit dari aplikasi
+    result = app.run()
+    
+    # Jika login sukses, jalankan mesin tmux
+    if result == "login_success":
+        start_tmux_session()

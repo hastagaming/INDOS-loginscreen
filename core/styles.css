@@ -1,6 +1,6 @@
 /* --- Global Styles --- */
 Screen {
-    background: #1e1e2e;
+    background: #1e1e2e; /* Catppuccin Base */
 }
 
 /* --- Login & Sign-up UI (Hyprland Style) --- */
@@ -11,15 +11,14 @@ Center {
 
 #login-box {
     width: 50;
-    height: 30;
-    border: double #89b4fa;
-    background: #181825;
+    height: 28;
+    border: double #89b4fa; /* Blue Accent */
+    background: #181825; /* Crust */
     padding: 2 4;
     content-align: center middle;
 }
 
 #login-icon {
-    /* Perbaikan: font-size dihapus karena tidak didukung Textual CSS */
     color: #89b4fa;
     width: 100%;
     height: 3;
@@ -55,7 +54,7 @@ Input:focus {
 
 #setup-btn {
     width: 100%;
-    background: #a6e3a1; 
+    background: #a6e3a1; /* Green Accent */
     color: #11111b;
     margin-top: 1;
     text-style: bold;
@@ -67,77 +66,6 @@ Input:focus {
     text-style: italic;
 }
 
-/* --- Waybar Styles (Top Bar) --- */
-#waybar {
-    height: 3;
-    background: #11111b;
-    color: #cdd6f4;
-    border-bottom: solid #89b4fa;
-    padding: 0 1;
-    dock: top;
-    layout: horizontal;
-}
-
-#os-logo {
-    color: #89b4fa;
-    text-style: bold;
-    width: 12;
-    content-align: center middle;
-}
-
-.btn-action {
-    /* Ukuran disesuaikan agar muat saat banyak tombol (ADD, FILES, AI) */
-    width: 16;
-    background: #313244;
-    color: #a6e3a1;
-    border: none;
-    margin-top: 1;
-    margin-left: 1;
-}
-
-.btn-action:hover {
-    background: #45475a;
-    color: #f9e2af;
-}
-
-#ai_btn {
-    color: #cba6f7; /* Warna ungu untuk AI */
-}
-
-#yazi_btn {
-    color: #89b4fa; /* Warna biru untuk Yazi */
-}
-
-#info-bar {
-    width: 1fr;
-    content-align: right middle;
-    color: #94e2d5;
-    padding-right: 1;
-}
-
-/* --- Workspace & Panels Styles --- */
-#workspace {
-    layout: horizontal;
-    height: 1fr;
-    padding: 1;
-}
-
-.panel {
-    width: 1fr;
-    height: 1fr;
-    border: tall #45475a;
-    background: #181825;
-    margin: 1;
-    padding: 1;
-    color: #cdd6f4;
-}
-
-.panel:focus {
-    border: tall #89b4fa;
-    background: #1e1e2e;
-}
-
-/* --- Footer --- */
 Footer {
     background: #11111b;
     color: #89b4fa;

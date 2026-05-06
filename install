@@ -11,36 +11,29 @@ clear
 echo -e "${BLUE}󰣇  INDOS SYSTEM INSTALLER${NC}"
 echo -e "${CYAN}----------------------------------${NC}"
 
+# 0. Self-Cloning Logic (untuk instalasi via curl)
 if [ ! -d "core" ]; then
     echo -e "${YELLOW}[*] Cloning INDOS repository...${NC}"
+    # Menggunakan repo terbaru yang kamu sebutkan
     git clone https://github.com/hastagaming/INDOS-loginscreen.git $HOME/INDOS-loginscreen
-    cd $HOME/INDOS-loginscreen
+    cd $HOME/INDOS-loginscreen || exit
 fi
 
 # 1. Setup Repository & Tur-Repo
-echo -e "${YELLOW}[*] Setting up repositories...${NC}"
+echo -e "${YELLOW}[*] Updating system & setting up tur-repo...${NC}"
 pkg update && pkg upgrade -y
-pkg install tur-repo -y
+pkg install tur-repo git -y
 
-# 2. Instalasi Dependensi Sistem & Yazi
-echo -e "${YELLOW}[*] Installing system tools & Yazi...${NC}"
-# Termasuk dependensi untuk preview Yazi (ffmpeg, jq, dll)
-pkg install python -y
-pkg install nodejs-lts -y
-pkg install yazi -y
-pkg install ffmpeg -y
-pkg install 7zip -y
-pkg install jq -y
-pkg install poppler -y
-pkg install fd -y
-pkg install ripgrep -y
-pkg install fzf vim -y
+# 2. Instalasi Dependensi Sistem, Yazi, & Tmux
+echo -e "${YELLOW}[*] Installing system tools, Yazi, & Tmux...${NC}"
+# Menggabungkan instalasi agar lebih cepat
+pkg install python nodejs-lts yazi tmux ffmpeg 7zip jq poppler fd ripgrep fzf vim -y
 
 # 3. Instalasi AI (Gemini CLI & Python SDK)
 echo -e "${YELLOW}[*] Installing Gemini AI components...${NC}"
 # Gemini CLI resmi via NPM
 npm install -g @google/gemini-cli --ignore-scripts
-# Python SDK untuk integrasi core
+# Library Python untuk core UI & AI
 pip install textual google-genai
 
 # 4. Konfigurasi Path & Perintah 'indos'
@@ -61,6 +54,25 @@ mv indos $PREFIX/bin/
 # 5. Memastikan Izin Eksekusi File Core
 chmod +x "$INSTALL_DIR/core/main.py"
 chmod +x "$INSTALL_DIR/core/utils.py"
+
+# 6. Fitur Default Shell (Khusus Termux)
+if [ -n "$TERMUX_VERSION" ]; then
+    echo -e "${CYAN}----------------------------------${NC}"
+    echo -ne "${YELLOW}[?] Do you want to set INDOS as your default Termux startup? (y/n): ${NC}"
+    read -r choice
+    
+    if [[ "$choice" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        # Menambahkan ke .bashrc dengan proteksi loop tmux
+        if ! grep -q "indos" ~/.bashrc; then
+            echo -e "\n# INDOS Auto-Start\nif [ -z \"\$TMUX\" ]; then indos; fi" >> ~/.bashrc
+            echo -e "${GREEN}[+] INDOS added to .bashrc successfully!${NC}"
+        else
+            echo -e "${BLUE}[!] INDOS is already set as default in .bashrc.${NC}"
+        fi
+    else
+        echo -e "${BLUE}[*] Skipping default shell setup.${NC}"
+    fi
+fi
 
 echo -e "${CYAN}----------------------------------${NC}"
 echo -e "${GREEN}[+] SUCCESS: INDOS & ALL Dependencies installed!${NC}"
