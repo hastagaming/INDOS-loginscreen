@@ -1,4 +1,4 @@
-# 󰣇 INDOS 🇮🇩
+# INDOS-loginscreen🇮🇩
 > **Indonesia OS Terminal** — A modern, aesthetic Terminal Workspace inspired by Hyprland, built with Python & Textual. 🚀
 
 INDOS is a high-performance Terminal User Interface (TUI) designed to provide a cohesive desktop-like experience directly within your terminal environment. It features a secure login system, integrated file management, and built-in AI intelligence. 💻✨
@@ -20,13 +20,13 @@ INDOS is a high-performance Terminal User Interface (TUI) designed to provide a 
 To install **INDOS** and all its required dependencies (including Yazi and Gemini AI), simply run the following command:
 
 ```bash
-git clone [https://github.com/hastagaming/INDOS-loginscreen](https://github.com/hastagaming/INDOS-loginscreen)
+git clone https://github.com/hastagaming/INDOS-loginscreen
 cd INDOS-loginscreen
 ./install
 ```
 or use curl:
 ```bash
-curl -sSL [https://raw.githubusercontent.com/hastagaming/INDOS-loginscreen/main/install](https://raw.githubusercontent.com/hastagaming/INDOS-loginscreen/main/install) | bash
+curl -sSL https://raw.githubusercontent.com/hastagaming/INDOS-loginscreen/main/install | bash
 ```
 
 ---
